@@ -5,7 +5,7 @@ export default function InvoiceList() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchInvoices = () => {
     api.get('/invoices/')
       .then(res => {
         setInvoices(res.data.results || res.data);
@@ -15,21 +15,36 @@ export default function InvoiceList() {
         console.error("Fetch error:", err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchInvoices();
   }, []);
+
+  const handleAction = async (id, action) => {
+    try {
+      await api.post(`/invoices/${id}/${action}/`);
+      // Refresh the list after action
+      fetchInvoices();
+    } catch (error) {
+      console.error(`Error during ${action}:`, error);
+      alert(`Failed to ${action}. Check console.`);
+    }
+  };
 
   if (loading) return <p>Loading invoices...</p>;
 
   return (
     <div>
       <h2>Invoice List</h2>
-      <table border="1" cellPadding="10" style={{ width: '100%', borderCollapse: 'collapse', background: '#fff' }}>
-        <thead style={{ background: '#e2e8f0' }}>
+      <table>
+        <thead>
           <tr>
             <th>ID</th>
             <th>Invoice #</th>
-            <th>Total Amount</th>
+            <th>Amount</th>
             <th>Status</th>
-            <th>Uploaded At</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -46,7 +61,17 @@ export default function InvoiceList() {
                     {inv.status}
                   </span>
                 </td>
-                <td>{new Date(inv.created_at).toLocaleString()}</td>
+                <td>
+                  {inv.status === 'extracted' && (
+                    <button onClick={() => handleAction(inv.id, 'validate')} style={btnStyle}>Validate</button>
+                  )}
+                  {inv.status === 'validated' && (
+                    <button onClick={() => handleAction(inv.id, 'approve')} style={{...btnStyle, backgroundColor: '#22c55e'}}>Approve</button>
+                  )}
+                  {inv.status === 'approved' && (
+                    <span style={{ color: 'green', fontWeight: 'bold' }}>✅ Approved</span>
+                  )}
+                </td>
               </tr>
             ))
           )}
@@ -55,3 +80,12 @@ export default function InvoiceList() {
     </div>
   );
 }
+
+const btnStyle = {
+  padding: '6px 12px',
+  backgroundColor: '#3b82f6',
+  color: 'white',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer'
+};
