@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Invoice, InvoiceLineItem, PurchaseOrder, GoodsReceiptNote, MatchResult
+from .models import EmailIngestion, Invoice, InvoiceLineItem, PurchaseOrder, GoodsReceiptNote, MatchResult
 
 class InvoiceLineItemInline(admin.TabularInline):
     model = InvoiceLineItem
@@ -22,3 +22,11 @@ class GoodsReceiptNoteAdmin(admin.ModelAdmin):
     list_display = ('grn_number', 'purchase_order', 'received_date', 'total_amount')
 
 admin.site.register(MatchResult)
+
+
+@admin.register(EmailIngestion)
+class EmailIngestionAdmin(admin.ModelAdmin):
+    list_display = ('mailbox', 'subject', 'sender', 'status', 'received_at', 'created_at')
+    list_filter = ('status', 'mailbox')
+    search_fields = ('subject', 'sender', 'message_id')
+    readonly_fields = ('mailbox', 'message_id', 'subject', 'sender', 'received_at', 'status', 'error_message', 'invoices')

@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Create AuthContext with login, logout, me check, and useAuth hook",
+  "updatedAt":  "2026-11-08T20:28:11.765045600Z"
+}

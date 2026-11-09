@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Create full App.jsx with React Router, AuthProvider, ProtectedLayout, and Toaster",
+  "updatedAt":  "2026-11-08T20:35:29.474758800Z"
+}

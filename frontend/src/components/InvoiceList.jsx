@@ -24,7 +24,6 @@ export default function InvoiceList() {
   const handleAction = async (id, action) => {
     try {
       await api.post(`/invoices/${id}/${action}/`);
-      // Refresh the list after action
       fetchInvoices();
     } catch (error) {
       console.error(`Error during ${action}:`, error);
@@ -32,11 +31,22 @@ export default function InvoiceList() {
     }
   };
 
+  const handlePayment = async (id) => {
+    try {
+      await api.post('/payments/requests/generate_from_invoice/', { invoice_id: id });
+      alert("✅ Payment Request Generated Successfully!");
+      fetchInvoices();
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.error || "Failed to generate payment.");
+    }
+  };
+
   if (loading) return <p>Loading invoices...</p>;
 
   return (
     <div>
-      <h2>Invoice List</h2>
+      <h2>Invoice Workflow</h2>
       <table>
         <thead>
           <tr>
@@ -61,15 +71,21 @@ export default function InvoiceList() {
                     {inv.status}
                   </span>
                 </td>
-                <td>
+                <td style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                   {inv.status === 'extracted' && (
-                    <button onClick={() => handleAction(inv.id, 'validate')} style={btnStyle}>Validate</button>
+                    <button onClick={() => handleAction(inv.id, 'validate')} style={btnStyle('#3b82f6')}>Validate</button>
                   )}
                   {inv.status === 'validated' && (
-                    <button onClick={() => handleAction(inv.id, 'approve')} style={{...btnStyle, backgroundColor: '#22c55e'}}>Approve</button>
+                    <button onClick={() => handleAction(inv.id, 'submit_for_approval')} style={btnStyle('#22c55e')}>Submit for Approval</button>
                   )}
                   {inv.status === 'approved' && (
-                    <span style={{ color: 'green', fontWeight: 'bold' }}>✅ Approved</span>
+                    <>
+                      <button onClick={() => handleAction(inv.id, 'match_2way')} style={btnStyle('#8b5cf6')}>2-Way Match</button>
+                      <button onClick={() => handlePayment(inv.id)} style={btnStyle('#eab308')}>Pay</button>
+                    </>
+                  )}
+                  {inv.status === 'paid' && (
+                    <span style={{ color: 'green', fontWeight: 'bold' }}>✅ Paid</span>
                   )}
                 </td>
               </tr>
@@ -81,11 +97,12 @@ export default function InvoiceList() {
   );
 }
 
-const btnStyle = {
+const btnStyle = (color) => ({
   padding: '6px 12px',
-  backgroundColor: '#3b82f6',
+  backgroundColor: color,
   color: 'white',
   border: 'none',
   borderRadius: '4px',
-  cursor: 'pointer'
-};
+  cursor: 'pointer',
+  fontSize: '12px'
+});

@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Create services/api.js with axios instance, CSRF, and 401 interceptor",
+  "updatedAt":  "2026-11-08T20:27:55.214424900Z"
+}
